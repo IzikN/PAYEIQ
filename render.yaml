@@ -6,6 +6,6 @@ services:
     startCommand: gunicorn payeiq.wsgi:application
     envVars:
       - key: PYTHON_VERSION
-        value: 3.10.0
+        value: 3.11.10
       - key: DJANGO_SETTINGS_MODULE
         value: payeiq.settings
