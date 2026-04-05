@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayeIQ Dashboard</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Tom Select -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+</head>
+
+<body class="bg-gray-100 font-sans">
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- TOP BAR -->
+    <div class="bg-white shadow sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex gap-4 items-end flex-wrap">
+
+            <!-- Employer -->
+            <div>
+                <label class="text-sm text-gray-500">Employer Name</label>
+                <input type="text" name="employer_name"
+                       value="{{ session.employer_name|default:'' }}"
+                       class="border rounded px-3 py-2">
+            </div>
+
+            <!-- State IRS -->
+            <div>
+                <label class="text-sm text-gray-500">State IRS</label>
+                <select id="state_irs" name="state_irs" class="border rounded px-3 py-2 w-72">
+                    <option value="">Select State IRS</option>
+
+                    <option>Lagos State Internal Revenue Service</option>
+                    <option>Abuja (FCT) Internal Revenue Service</option>
+                    <option>Abia State Internal Revenue Service</option>
+                    <option>Adamawa State Internal Revenue Service</option>
+                    <option>Akwa Ibom State Internal Revenue Service</option>
+                    <option>Anambra State Internal Revenue Service</option>
+                    <option>Bauchi State Internal Revenue Service</option>
+                    <option>Bayelsa State Internal Revenue Service</option>
+                    <option>Benue State Internal Revenue Service</option>
+                    <option>Borno State Internal Revenue Service</option>
+                    <option>Cross River State Internal Revenue Service</option>
+                    <option>Delta State Internal Revenue Service</option>
+                    <option>Ebonyi State Internal Revenue Service</option>
+                    <option>Edo State Internal Revenue Service</option>
+                    <option>Ekiti State Internal Revenue Service</option>
+                    <option>Enugu State Internal Revenue Service</option>
+                    <option>Gombe State Internal Revenue Service</option>
+                    <option>Imo State Internal Revenue Service</option>
+                    <option>Jigawa State Internal Revenue Service</option>
+                    <option>Kaduna State Internal Revenue Service</option>
+                    <option>Kano State Internal Revenue Service</option>
+                    <option>Katsina State Internal Revenue Service</option>
+                    <option>Kebbi State Internal Revenue Service</option>
+                    <option>Kogi State Internal Revenue Service</option>
+                    <option>Kwara State Internal Revenue Service</option>
+                    <option>Nasarawa State Internal Revenue Service</option>
+                    <option>Niger State Internal Revenue Service</option>
+                    <option>Ogun State Internal Revenue Service</option>
+                    <option>Ondo State Internal Revenue Service</option>
+                    <option>Osun State Internal Revenue Service</option>
+                    <option>Oyo State Internal Revenue Service</option>
+                    <option>Plateau State Internal Revenue Service</option>
+                    <option>Rivers State Internal Revenue Service</option>
+                    <option>Sokoto State Internal Revenue Service</option>
+                    <option>Taraba State Internal Revenue Service</option>
+                    <option>Yobe State Internal Revenue Service</option>
+                    <option>Zamfara State Internal Revenue Service</option>
+                </select>
+            </div>
+
+            <!-- Tax Year -->
+            <div>
+                <label class="text-sm text-gray-500">Tax Year</label>
+                <select id="tax_year" name="tax_year" class="border rounded px-3 py-2"></select>
+            </div>
+
+            <!-- New Client -->
+            <div class="ml-auto">
+                <a href="/" class="bg-gray-700 text-white px-4 py-2 rounded">
+                    New Client
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- UPLOAD -->
+    <div class="max-w-7xl mx-auto p-6">
+        <div class="bg-white p-6 rounded-2xl shadow mb-6">
+            <div class="border-2 border-dashed border-gray-300 rounded-xl p-10 text-center">
+                <p class="text-gray-600">📄 Drag & Drop Receipts Here</p>
+                <p class="text-sm text-gray-400">PDF, JPG, PNG, WEBP supported</p>
+                <input type="file" name="files" multiple class="mt-4">
+            </div>
+            <button type="submit" class="mt-4 bg-green-700 text-white px-6 py-2 rounded">
+                Upload Receipts
+            </button>
+        </div>
+</form>
+
+        {% if receipts %}
+        <div class="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-xl mb-6">
+            {{ receipts|length }} receipts processed
+        </div>
+        {% endif %}
+
+        <!-- TABLE -->
+        <div class="bg-white rounded-2xl shadow overflow-x-auto">
+            <table class="min-w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3">#</th>
+                        <th class="px-4 py-3">Month</th>
+                        <th class="px-4 py-3">Date</th>
+                        <th class="px-4 py-3">Receipt No.</th>
+                        <th class="px-4 py-3 text-right">Amount</th>
+                        <th class="px-4 py-3">Confidence</th>
+                        <th class="px-4 py-3">Source</th>
+                        <th class="px-4 py-3">Delete</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for receipt in receipts %}
+                    <tr class="border-t">
+                        <td class="px-4 py-2">{{ forloop.counter }}</td>
+
+                        <td class="px-4 py-2 editable" data-id="{{ receipt.id }}" data-field="month">{{ receipt.month }}</td>
+                        <td class="px-4 py-2 editable" data-id="{{ receipt.id }}" data-field="date_of_payment">{{ receipt.date_of_payment }}</td>
+                        <td class="px-4 py-2 editable" data-id="{{ receipt.id }}" data-field="receipt_number">{{ receipt.receipt_number }}</td>
+                        <td class="px-4 py-2 text-right editable amount" data-id="{{ receipt.id }}" data-field="amount">{{ receipt.amount }}</td>
+
+                        <td class="px-4 py-2">
+                            {% if receipt.confidence == "High" %}
+                                <span class="bg-green-100 text-green-700 px-2 py-1 rounded">High</span>
+                            {% elif receipt.confidence == "Medium" %}
+                                <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded">Medium</span>
+                            {% else %}
+                                <span class="bg-red-100 text-red-700 px-2 py-1 rounded">Low</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="px-4 py-2 source">
+                            {% if receipt.source == "Manual" %}
+                                <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded">Manual</span>
+                            {% else %}
+                                <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded">AI</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="px-4 py-2 text-red-500 cursor-pointer delete-btn" data-id="{{ receipt.id }}">
+                            🗑
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+                <tfoot>
+                    <tr class="font-bold border-t">
+                        <td colspan="4" class="text-right px-4 py-3">TOTAL</td>
+                        <td class="text-right px-4 py-3" id="totalAmount">₦ 0</td>
+                        <td colspan="3"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- EXPORT -->
+        <div class="mt-6 text-right">
+            <a href="/export-excel/" class="bg-green-700 text-white px-6 py-3 rounded-xl">
+                Export to Excel
+            </a>
+        </div>
+
+    </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    // TomSelect
+    new TomSelect("#state_irs");
+
+    // Dynamic Year
+    const yearSelect = document.getElementById("tax_year");
+    const currentYear = new Date().getFullYear();
+
+    for (let y = 2026; y <= currentYear + 10; y++) {
+        let opt = document.createElement("option");
+        opt.value = y;
+        opt.textContent = y;
+
+        if ("{{ session.tax_year }}" == y) opt.selected = true;
+
+        yearSelect.appendChild(opt);
+    }
+
+    // Editable Cells
+    document.querySelectorAll('.editable').forEach(cell => {
+        cell.addEventListener('click', function () {
+            if (this.querySelector('input')) return;
+
+            const oldValue = this.textContent.trim();
+            const input = document.createElement('input');
+
+            input.value = oldValue;
+            input.className = 'border px-2 py-1 w-full';
+
+            this.innerHTML = '';
+            this.appendChild(input);
+            input.focus();
+
+            input.addEventListener('blur', () => {
+                const newValue = input.value || oldValue;
+                this.textContent = newValue;
+                saveEdit(this, newValue);
+            });
+        });
+    });
+
+    function getCSRFToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+
+    function saveEdit(cell, value) {
+        const id = cell.dataset.id;
+        const field = cell.dataset.field;
+        const row = cell.parentElement;
+
+        fetch('/update-receipt/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({ id, field, value })
+        }).then(() => {
+            row.querySelector('.source').innerHTML =
+                '<span class="bg-blue-100 text-blue-700 px-2 py-1 rounded">Manual</span>';
+
+            calculateTotal();
+        });
+    }
+
+    function calculateTotal() {
+        let total = 0;
+        document.querySelectorAll('.amount').forEach(cell => {
+            let val = parseFloat(cell.textContent.replace(/,/g, ''));
+            if (!isNaN(val)) total += val;
+        });
+        document.getElementById('totalAmount').innerText = '₦ ' + total.toLocaleString();
+    }
+
+    calculateTotal();
+
+    // Delete
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const id = this.dataset.id;
+
+            if (confirm("Delete this receipt?")) {
+                fetch('/delete-receipt/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    body: JSON.stringify({ id })
+                }).then(() => location.reload());
+            }
+        });
+    });
+
+});
+</script>
+
+</body>
+</html>

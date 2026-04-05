@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: payeiq-app
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn payeiq.wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.0
+      - key: DJANGO_SETTINGS_MODULE
+        value: payeiq.settings
