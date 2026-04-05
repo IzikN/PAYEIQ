@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-g4hv!is@h*=5bp2&i&=9ak_t(-%(l$*yn&bkaxz=%_85#ie(y4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['payeiq.onrender.com']
 
 
 # Application definition
