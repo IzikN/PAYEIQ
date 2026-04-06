@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
+import os
+from decouple import config
+import google.generativeai as genai
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +24,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-g4hv!is@h*=5bp2&i&=9ak_t(-%(l$*yn&bkaxz=%_85#ie(y4'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['payeiq.onrender.com']
+
+GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
+
+ALLOWED_HOSTS = ['payeiq.onrender.com', '127.0.0.1']
 
 
 # Application definition
