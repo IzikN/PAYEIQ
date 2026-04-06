@@ -1,9 +1,9 @@
 import google.generativeai as genai
 import json
 from PIL import Image
+from django.conf import settings
 
-genai.configure(api_key="AIzaSyBWZ1Lag1_XVH78KtDbf86WUTSlwTAKQ_I")
-
+genai.configure(api_key=settings.GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-2.5-flash")
 
 
