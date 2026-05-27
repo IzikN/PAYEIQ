@@ -25,26 +25,32 @@ def export_excel(request):
 
 
 def dashboard(request):
-    session_id = request.GET.get('session_id')
+    session_id = request.session.get("session_id")
     session = None
     receipts = []
 
-    # If a session exists in URL, load it
     if session_id:
-        session = Session.objects.get(id=session_id)
-        receipts = Receipt.objects.filter(session=session, status="Done").order_by('date_of_payment')
+        try:
+            session = Session.objects.get(id=session_id)
+            receipts = Receipt.objects.filter(
+                session=session,
+                status="Done"
+            ).order_by('date_of_payment')
+        except Session.DoesNotExist:
+            session = None
 
     if request.method == 'POST':
         employer_name = request.POST.get('employer_name')
         state_irs = request.POST.get('state_irs')
         tax_year = request.POST.get('tax_year')
 
-        # Always create NEW session for new client
         session = Session.objects.create(
             employer_name=employer_name,
             state_irs=state_irs,
             tax_year=tax_year
         )
+
+        request.session["session_id"] = session.id
 
         files = request.FILES.getlist('files')
         for f in files:
@@ -58,7 +64,6 @@ def dashboard(request):
 
             file_path = receipt.file.path
 
-            # PDF
             if file_path.lower().endswith(".pdf"):
                 try:
                     image_paths = split_pdf_to_images(file_path)
@@ -82,7 +87,7 @@ def dashboard(request):
                     receipt.status = "Processed (PDF)"
                     receipt.save()
 
-                except Exception as e:
+                except Exception:
                     receipt.status = "Error"
                     receipt.save()
 
@@ -99,7 +104,7 @@ def dashboard(request):
                 receipt.source = "AI"
                 receipt.save()
 
-        return redirect(f"{reverse('dashboard')}?session_id={session.id}")
+        return redirect(reverse('dashboard'))
 
     return render(request, 'dashboard.html', {
         'receipts': receipts,
