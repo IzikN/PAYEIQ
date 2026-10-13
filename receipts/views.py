@@ -40,6 +40,46 @@ def export_excel(request):
     download_filename = f"{safe_employer}_Form_G_{session.tax_year}.xlsx"
     return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=download_filename)
 
+STATE_IRS_CHOICES = [
+    "Abia State Internal Revenue Service",
+    "Adamawa State Internal Revenue Service",
+    "Akwa Ibom State Internal Revenue Service",
+    "Anambra State Internal Revenue Service",
+    "Bauchi State Internal Revenue Service",
+    "Bayelsa State Internal Revenue Service",
+    "Benue State Internal Revenue Service",
+    "Borno State Internal Revenue Service",
+    "Cross River State Internal Revenue Service",
+    "Delta State Internal Revenue Service",
+    "Ebonyi State Internal Revenue Service",
+    "Edo State Internal Revenue Service",
+    "Ekiti State Internal Revenue Service",
+    "Enugu State Internal Revenue Service",
+    "FCT Internal Revenue Service (Abuja)",
+    "Gombe State Internal Revenue Service",
+    "Imo State Internal Revenue Service",
+    "Jigawa State Internal Revenue Service",
+    "Kaduna State Internal Revenue Service",
+    "Kano State Internal Revenue Service",
+    "Katsina State Internal Revenue Service",
+    "Kebbi State Internal Revenue Service",
+    "Kogi State Internal Revenue Service",
+    "Kwara State Internal Revenue Service",
+    "Lagos State Internal Revenue Service",
+    "Nasarawa State Internal Revenue Service",
+    "Niger State Internal Revenue Service",
+    "Ogun State Internal Revenue Service",
+    "Ondo State Internal Revenue Service",
+    "Osun State Internal Revenue Service",
+    "Oyo State Internal Revenue Service",
+    "Plateau State Internal Revenue Service",
+    "Rivers State Internal Revenue Service",
+    "Sokoto State Internal Revenue Service",
+    "Taraba State Internal Revenue Service",
+    "Yobe State Internal Revenue Service",
+    "Zamfara State Internal Revenue Service",
+]
+
 
 def dashboard(request):
     session_id = request.session.get("session_id")
@@ -47,7 +87,7 @@ def dashboard(request):
     session = None
     receipts = []
 
-    # Retrieve only the active session for the current user
+    # Fetch active session and its processed receipts
     if session_id:
         session = Session.objects.filter(id=session_id).first()
         if session:
@@ -62,19 +102,25 @@ def dashboard(request):
         state_irs = request.POST.get('state_irs')
         tax_year = request.POST.get('tax_year')
 
-        # Store user context in session
+        # Persist user context across multi-page actions
         if user_name:
             request.session["user_name"] = user_name
 
-        # Create session record
-        session = Session.objects.create(
-            employer_name=employer_name,
-            state_irs=state_irs,
-            tax_year=tax_year
-        )
+        # Create or update session record
+        if session:
+            session.employer_name = employer_name
+            session.state_irs = state_irs
+            session.tax_year = tax_year
+            session.save()
+        else:
+            session = Session.objects.create(
+                employer_name=employer_name,
+                state_irs=state_irs,
+                tax_year=tax_year
+            )
+            request.session["session_id"] = session.id
 
-        request.session["session_id"] = session.id
-
+        # Handle uploaded receipts
         files = request.FILES.getlist('files')
         for f in files:
             receipt = Receipt.objects.create(
@@ -87,6 +133,7 @@ def dashboard(request):
 
             file_path = receipt.file.path
 
+            # PDF Handling: Split into page images first
             if file_path.lower().endswith(".pdf"):
                 try:
                     image_paths = split_pdf_to_images(file_path)
@@ -114,26 +161,35 @@ def dashboard(request):
                     receipt.status = "Error"
                     receipt.save()
 
+            # Image Handling: Extract directly
             else:
-                time.sleep(1)
-                data = extract_receipt_data(file_path)
+                try:
+                    time.sleep(1)
+                    data = extract_receipt_data(file_path)
 
-                receipt.date_of_payment = data.get("date_of_payment")
-                receipt.receipt_number = data.get("receipt_number") or "UNKNOWN"
-                receipt.amount = data.get("amount") or 0
-                receipt.confidence = data.get("confidence")
-                receipt.month = derive_month(data.get("date_of_payment"))
-                receipt.status = "Done"
-                receipt.source = "AI"
-                receipt.save()
+                    receipt.date_of_payment = data.get("date_of_payment")
+                    receipt.receipt_number = data.get("receipt_number") or "UNKNOWN"
+                    receipt.amount = data.get("amount") or 0
+                    receipt.confidence = data.get("confidence")
+                    receipt.month = derive_month(data.get("date_of_payment"))
+                    receipt.status = "Done"
+                    receipt.source = "AI"
+                    receipt.save()
+                except Exception:
+                    receipt.status = "Error"
+                    receipt.save()
 
         return redirect(reverse('dashboard'))
 
-    return render(request, 'dashboard.html', {
-        'receipts': receipts,
+    # Context supplied to template GET requests
+    context = {
         'session': session,
-        'user_name': user_name
-    })
+        'receipts': receipts,
+        'user_name': user_name,
+        'state_irs_list': STATE_IRS_CHOICES,
+    }
+
+    return render(request, 'dashboard.html', context)
 
 
 def update_receipt(request):
