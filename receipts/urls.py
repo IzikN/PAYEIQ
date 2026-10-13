@@ -7,5 +7,7 @@ urlpatterns = [
     path('update-receipt/', views.update_receipt, name='update_receipt'),
     path('export-excel/', views.export_excel, name='export_excel'),
     path('delete-receipt/', views.delete_receipt, name='delete_receipt'),
+    path('new-session/', views.new_session, name='new_session'),
+    path('setup/', views.setup, name='setup'),
 ]
 

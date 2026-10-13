@@ -21,100 +21,79 @@
     <div class="bg-white shadow sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-6 py-4 flex gap-4 items-end flex-wrap">
 
+            <!-- User Name / Person Operating -->
+            <div>
+                <label class="text-sm text-gray-500">Prepared By</label>
+                <input type="text" name="user_name"
+                       value="{{ user_name|default:'' }}"
+                       placeholder="Your Name"
+                       class="border rounded px-3 py-2" required>
+            </div>
+
             <!-- Employer -->
             <div>
                 <label class="text-sm text-gray-500">Employer Name</label>
                 <input type="text" name="employer_name"
                        value="{{ session.employer_name|default:'' }}"
-                       class="border rounded px-3 py-2">
+                       placeholder="Company Name"
+                       class="border rounded px-3 py-2" required>
             </div>
 
             <!-- State IRS -->
             <div>
                 <label class="text-sm text-gray-500">State IRS</label>
-                <select id="state_irs" name="state_irs" class="border rounded px-3 py-2 w-72">
+                <select id="state_irs" name="state_irs" class="border rounded px-3 py-2 w-72" required>
                     <option value="">Select State IRS</option>
-
-                    <option>Lagos State Internal Revenue Service</option>
-                    <option>Abuja (FCT) Internal Revenue Service</option>
-                    <option>Abia State Internal Revenue Service</option>
-                    <option>Adamawa State Internal Revenue Service</option>
-                    <option>Akwa Ibom State Internal Revenue Service</option>
-                    <option>Anambra State Internal Revenue Service</option>
-                    <option>Bauchi State Internal Revenue Service</option>
-                    <option>Bayelsa State Internal Revenue Service</option>
-                    <option>Benue State Internal Revenue Service</option>
-                    <option>Borno State Internal Revenue Service</option>
-                    <option>Cross River State Internal Revenue Service</option>
-                    <option>Delta State Internal Revenue Service</option>
-                    <option>Ebonyi State Internal Revenue Service</option>
-                    <option>Edo State Internal Revenue Service</option>
-                    <option>Ekiti State Internal Revenue Service</option>
-                    <option>Enugu State Internal Revenue Service</option>
-                    <option>Gombe State Internal Revenue Service</option>
-                    <option>Imo State Internal Revenue Service</option>
-                    <option>Jigawa State Internal Revenue Service</option>
-                    <option>Kaduna State Internal Revenue Service</option>
-                    <option>Kano State Internal Revenue Service</option>
-                    <option>Katsina State Internal Revenue Service</option>
-                    <option>Kebbi State Internal Revenue Service</option>
-                    <option>Kogi State Internal Revenue Service</option>
-                    <option>Kwara State Internal Revenue Service</option>
-                    <option>Nasarawa State Internal Revenue Service</option>
-                    <option>Niger State Internal Revenue Service</option>
-                    <option>Ogun State Internal Revenue Service</option>
-                    <option>Ondo State Internal Revenue Service</option>
-                    <option>Osun State Internal Revenue Service</option>
-                    <option>Oyo State Internal Revenue Service</option>
-                    <option>Plateau State Internal Revenue Service</option>
-                    <option>Rivers State Internal Revenue Service</option>
-                    <option>Sokoto State Internal Revenue Service</option>
-                    <option>Taraba State Internal Revenue Service</option>
-                    <option>Yobe State Internal Revenue Service</option>
-                    <option>Zamfara State Internal Revenue Service</option>
+                    <option {% if session.state_irs == "Lagos State Internal Revenue Service" %}selected{% endif %}>Lagos State Internal Revenue Service</option>
+                    <option {% if session.state_irs == "Abuja (FCT) Internal Revenue Service" %}selected{% endif %}>Abuja (FCT) Internal Revenue Service</option>
+                    <option {% if session.state_irs == "Ogun State Internal Revenue Service" %}selected{% endif %}>Ogun State Internal Revenue Service</option>
+                    <option {% if session.state_irs == "Oyo State Internal Revenue Service" %}selected{% endif %}>Oyo State Internal Revenue Service</option>
+                    <option {% if session.state_irs == "Rivers State Internal Revenue Service" %}selected{% endif %}>Rivers State Internal Revenue Service</option>
+                    <!-- Additional states as needed -->
                 </select>
             </div>
 
             <!-- Tax Year -->
             <div>
                 <label class="text-sm text-gray-500">Tax Year</label>
-                <select id="tax_year" name="tax_year" class="border rounded px-3 py-2"></select>
+                <select id="tax_year" name="tax_year" class="border rounded px-3 py-2" required></select>
             </div>
 
-            <!-- New Client -->
+            <!-- New Client / Reset Session -->
             <div class="ml-auto">
-                <a href="/" class="bg-gray-700 text-white px-4 py-2 rounded">
-                    New Client
+                <a href="{% url 'new_session' %}" class="bg-gray-700 text-white px-4 py-2 rounded inline-block">
+                    + New Client
                 </a>
             </div>
 
         </div>
     </div>
 
-    <!-- UPLOAD -->
+    <!-- UPLOAD CONTAINER -->
     <div class="max-w-7xl mx-auto p-6">
         <div class="bg-white p-6 rounded-2xl shadow mb-6">
             <div class="border-2 border-dashed border-gray-300 rounded-xl p-10 text-center">
                 <p class="text-gray-600">📄 Drag & Drop Receipts Here</p>
                 <p class="text-sm text-gray-400">PDF, JPG, PNG, WEBP supported</p>
-                <input type="file" name="files" multiple class="mt-4">
+                <input type="file" name="files" multiple class="mt-4" {% if not receipts %}required{% endif %}>
             </div>
-            <button type="submit" class="mt-4 bg-green-700 text-white px-6 py-2 rounded">
-                Upload Receipts
+            <button type="submit" class="mt-4 bg-green-700 hover:bg-green-800 text-white font-medium px-6 py-2 rounded-lg transition">
+                Process Receipts
             </button>
         </div>
 </form>
 
         {% if receipts %}
-        <div class="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-xl mb-6">
-            {{ receipts|length }} receipts processed
+        <div class="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-xl mb-6 flex justify-between items-center">
+            <span><strong>{{ session.employer_name }}</strong>: {{ receipts|length }} receipt(s) processed</span>
+            <span class="text-sm text-green-700">Tax Year: {{ session.tax_year }}</span>
         </div>
         {% endif %}
 
         <!-- TABLE -->
         <div class="bg-white rounded-2xl shadow overflow-x-auto">
-            <table class="min-w-full">
-                <thead class="bg-gray-50">
+            <table class="min-w-full text-left">
+                <thead class="bg-gray-50 text-gray-600 text-sm">
                     <tr>
                         <th class="px-4 py-3">#</th>
                         <th class="px-4 py-3">Month</th>
@@ -129,7 +108,7 @@
 
                 <tbody>
                     {% for receipt in receipts %}
-                    <tr class="border-t">
+                    <tr class="border-t hover:bg-gray-50">
                         <td class="px-4 py-2">{{ forloop.counter }}</td>
 
                         <td class="px-4 py-2 editable" data-id="{{ receipt.id }}" data-field="month">{{ receipt.month }}</td>
@@ -139,33 +118,37 @@
 
                         <td class="px-4 py-2">
                             {% if receipt.confidence == "High" %}
-                                <span class="bg-green-100 text-green-700 px-2 py-1 rounded">High</span>
+                                <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded font-semibold">High</span>
                             {% elif receipt.confidence == "Medium" %}
-                                <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded">Medium</span>
+                                <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded font-semibold">Medium</span>
                             {% else %}
-                                <span class="bg-red-100 text-red-700 px-2 py-1 rounded">Low</span>
+                                <span class="bg-red-100 text-red-700 text-xs px-2 py-1 rounded font-semibold">Low</span>
                             {% endif %}
                         </td>
 
                         <td class="px-4 py-2 source">
                             {% if receipt.source == "Manual" %}
-                                <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded">Manual</span>
+                                <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded font-semibold">Manual</span>
                             {% else %}
-                                <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded">AI</span>
+                                <span class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded font-semibold">AI</span>
                             {% endif %}
                         </td>
 
-                        <td class="px-4 py-2 text-red-500 cursor-pointer delete-btn" data-id="{{ receipt.id }}">
+                        <td class="px-4 py-2 text-red-500 cursor-pointer delete-btn text-center" data-id="{{ receipt.id }}">
                             🗑
                         </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-6 text-gray-400">No receipts uploaded yet. Select files above to begin.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
 
                 <tfoot>
-                    <tr class="font-bold border-t">
+                    <tr class="font-bold border-t bg-gray-50">
                         <td colspan="4" class="text-right px-4 py-3">TOTAL</td>
-                        <td class="text-right px-4 py-3" id="totalAmount">₦ 0</td>
+                        <td class="text-right px-4 py-3 text-green-800" id="totalAmount">₦ 0</td>
                         <td colspan="3"></td>
                     </tr>
                 </tfoot>
@@ -173,11 +156,13 @@
         </div>
 
         <!-- EXPORT -->
+        {% if receipts %}
         <div class="mt-6 text-right">
-            <a href="/export-excel/" class="bg-green-700 text-white px-6 py-3 rounded-xl">
-                Export to Excel
+            <a href="{% url 'export_excel' %}" class="bg-green-700 hover:bg-green-800 text-white px-6 py-3 rounded-xl inline-block font-medium shadow transition">
+                Export to Form G Excel
             </a>
         </div>
+        {% endif %}
 
     </div>
 
@@ -185,18 +170,27 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     // TomSelect
-    new TomSelect("#state_irs");
+    if (document.getElementById("state_irs")) {
+        new TomSelect("#state_irs", { create: false });
+    }
 
-    // Dynamic Year
+    // Dynamic Year Options (2025 up to 50 years in the future)
     const yearSelect = document.getElementById("tax_year");
+    const activeTaxYear = "{{ session.tax_year|default:'' }}";
     const currentYear = new Date().getFullYear();
 
-    for (let y = 2026; y <= currentYear + 10; y++) {
+    const startYear = 2025;
+    const endYear = currentYear + 50; // Extend as far forward as needed
+
+    for (let y = startYear; y <= endYear; y++) {
         let opt = document.createElement("option");
         opt.value = y;
         opt.textContent = y;
 
-        if ("{{ session.tax_year }}" == y) opt.selected = true;
+        // Pre-select session year if active, otherwise default to current year
+        if (activeTaxYear == y || (!activeTaxYear && y == currentYear)) {
+            opt.selected = true;
+        }
 
         yearSelect.appendChild(opt);
     }
@@ -210,7 +204,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const input = document.createElement('input');
 
             input.value = oldValue;
-            input.className = 'border px-2 py-1 w-full';
+            input.className = 'border px-2 py-1 w-full rounded focus:outline-none focus:ring-1 focus:ring-blue-500';
 
             this.innerHTML = '';
             this.appendChild(input);
@@ -225,7 +219,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function getCSRFToken() {
-        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+        return csrfInput ? csrfInput.value : '';
     }
 
     function saveEdit(cell, value) {
@@ -240,11 +235,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 'X-CSRFToken': getCSRFToken()
             },
             body: JSON.stringify({ id, field, value })
-        }).then(() => {
-            row.querySelector('.source').innerHTML =
-                '<span class="bg-blue-100 text-blue-700 px-2 py-1 rounded">Manual</span>';
-
-            calculateTotal();
+        }).then(res => {
+            if (res.ok) {
+                row.querySelector('.source').innerHTML =
+                    '<span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded font-semibold">Manual</span>';
+                calculateTotal();
+            }
         });
     }
 
@@ -254,12 +250,12 @@ document.addEventListener("DOMContentLoaded", function () {
             let val = parseFloat(cell.textContent.replace(/,/g, ''));
             if (!isNaN(val)) total += val;
         });
-        document.getElementById('totalAmount').innerText = '₦ ' + total.toLocaleString();
+        document.getElementById('totalAmount').innerText = '₦ ' + total.toLocaleString('en-US', { minimumFractionDigits: 2 });
     }
 
     calculateTotal();
 
-    // Delete
+    // Delete Receipt
     document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.addEventListener('click', function () {
             const id = this.dataset.id;
@@ -272,13 +268,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         'X-CSRFToken': getCSRFToken()
                     },
                     body: JSON.stringify({ id })
-                }).then(() => location.reload());
+                }).then(res => {
+                    if (res.ok) location.reload();
+                });
             }
         });
     });
 
 });
 </script>
-
-</body>
 </html>

@@ -1,7 +1,7 @@
 from django.db import models
 
 class Session(models.Model):
-    employer_name = models.CharField(max_length=255)
+    employer_name = models.CharField(max_length=255, db_index=True)
     state_irs = models.CharField(max_length=255)
     tax_year = models.CharField(max_length=10)
     created_at = models.DateTimeField(auto_now_add=True)

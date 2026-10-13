@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayeIQ - Setup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-gray-800 p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-700">
+        <h2 class="text-3xl font-bold mb-2 text-center">Welcome to PayeIQ</h2>
+        <p class="text-gray-400 text-sm mb-6 text-center">Enter your details to start a Form G session.</p>
+
+        <form method="POST" action="{% url 'setup' %}">
+            {% csrf_token %}
+
+            <div class="mb-4">
+                <label class="block text-gray-300 text-sm font-medium mb-1">Your Name</label>
+                <input type="text" name="user_name" placeholder="John Doe" 
+                       class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500" required>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-gray-300 text-sm font-medium mb-1">Employer / Company Name</label>
+                <input type="text" name="employer_name" placeholder="Acme Corp Ltd" 
+                       class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500" required>
+            </div>
+
+            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg shadow-lg transition">
+                Continue to Dashboard →
+            </button>
+        </form>
+    </div>
+
+</body>
+</html>
